@@ -1,3 +1,3 @@
 module.exports = {
-    MongoDB: 'mongodb+srv://carrental:carrental@carrental.insu5.mongodb.net/myFirstDatabase?retryWrites=true&w=majority'
+    MongoDB: 'mongodb+srv://carRental:carRental@carrental.insu5.mongodb.net/carRental?retryWrites=true&w=majority'
 };

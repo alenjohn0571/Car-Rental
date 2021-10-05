@@ -1,12 +1,12 @@
 const passport =require('passport');
 const localStrategy = require('passport-local').Strategy;
 const User = require('../models/user');
-const bcypt = require('bcryptjs');
-
+const bcrypt= require('bcryptjs');
 //fetch user ObjectID and generate cookie ID for browser
-passport.serializeUser((user,done)=>{
+passport.serializeUser((user,done) => {
     done(null,user.id);
 });
+
 passport.deserializeUser((id,done) => {
     User.findById(id,(err,user) => {
         done(err,user);

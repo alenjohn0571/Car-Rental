@@ -1,12 +1,12 @@
 const express = require('express');
 const exphbs = require('express-handlebars');
-const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const session =require('express-session');
 const cookieParser = require('cookie-parser');
 const passport = require('passport');
 const bcrypt= require('bcryptjs');
 const app= express();
+const mongoose = require('mongoose');
 
 app.use(bodyParser.urlencoded({extended:false}));
 app.use(bodyParser.json());
@@ -41,6 +41,7 @@ mongoose.connect(keys.MongoDB,() => {
 }).catch((err) => {
     console.log(err);
 });
+
 app.engine('handlebars',exphbs({
     defaultLayout: 'main'
 }));
@@ -59,12 +60,12 @@ app.get('/about',ensureGuest,(req,res) => {
         title: 'About'
     });
 });
-app.get('/contact',ensureGuest,(req,res) => {
+app.get('/contact',requireLogin,(req,res) => {
     res.render('contact',{
         title:'Contact Us'
     });
 });
-app.post('/contact',requireLogin, (req,res) => {
+app.post('/contact', (req,res) => {
     console.log(req.body);
     const newContact = {
         name: req.user._id,
@@ -83,21 +84,16 @@ app.get('/signup',ensureGuest,(req,res) => {
         title:'Register'
     });
 });
-
-app.listen(port,() => {
-    console.log('server is up on port' + port);
-
-});
 app.post('/signup', ensureGuest,(req,res) => {
-    connsole.log(req,body);
+    console.log(req.body);
     let errors =[];
     if (req.body.password !== req.body.password2){
         errors.push({text: 'Password does not match'});
     }
     if (req.body.password.length < 5){
-        errors.push({text: 'Password must be atleast 5 characters'});
+        errors.push({text:'Password must be atleast 5 characters!'});
     }
-    if (errors.length > 0){
+    if (errors.length > 0) {
         res.render('signupForm',{
             errors:errors,
             firstname: req.body.firstname,
@@ -113,7 +109,7 @@ app.post('/signup', ensureGuest,(req,res) => {
                 let errors = [];
                 errors.push({text: 'Email already exists'});
                 res.render('signupForm',{
-                    errror:errors,
+                    errors:errors,
                     firstname: req.body.firstname,
                     lastname: req.body.lastname,
                     password:req.body.passsword,
@@ -122,7 +118,7 @@ app.post('/signup', ensureGuest,(req,res) => {
                 });
             }else{
                 //encrypt pass
-                let salt = bcrypt.generate.genSaltSync(10);
+                let salt = bcrypt.genSaltSync(10);
                 let hash = bcrypt.hashSync(req.body.password,salt);                
                 const newUser = {
                     firstname: req.body.firstname,
@@ -131,12 +127,12 @@ app.post('/signup', ensureGuest,(req,res) => {
                     password: hash
                 }
                 new User(newUser).save((err,user) => {
-                    if(err){
+                    if (err) {
                       throw err;
                     }
-                    if(user){
+                    if (user)  {
                         let success = [];
-                        success.push({text: 'You have successfully created an account'})
+                        success.push({text: 'You have successfully created an account'});
                         res.render('loginForm',{
                             success:success
                         })
@@ -189,5 +185,5 @@ app.get('/logout', (req,res) => {
     });
 });
 app.listen(port,() => {
-    console.log(`Server is running on Port ${port}`);
+    console.log(`Server is running on port ${port}`);
 });
