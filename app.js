@@ -6,6 +6,7 @@ const session =require('express-session');
 const cookieParser = require('cookie-parser');
 const passport = require('passport');
 const bcrypt= require('bcryptjs');
+
 const app= express();
 
 app.use(bodyParser.urlencoded({extended:false}));
@@ -17,12 +18,14 @@ app.use(session({
     resave: true,
     saveUninitialized: true
 }));
+
 app.use(passport.initialize());
 app.use(passport.session());
 
 const{requireLogin,ensureGuest} = require('./helpers/authHelper');
 
 require('./passport/local');
+require('./passport/facebook');
 
 app.use((req,res,next) => {
     res.locals.user = req.user || null;
@@ -41,9 +44,11 @@ mongoose.connect(keys.MongoDB,() => {
 }).catch((err) => {
     console.log(err);
 });
+
 app.engine('handlebars',exphbs({
     defaultLayout: 'main'
 }));
+
 app.set('view engine','handlebars');
 
 app.use(express.static('public'));
@@ -52,18 +57,20 @@ const port = process.env.PORT || 3000;
 
 app.get('/',ensureGuest,(req,res) => {
     res.render('home');
-
 });
+
 app.get('/about',ensureGuest,(req,res) => {
     res.render('about',{
         title: 'About'
     });
 });
+
 app.get('/contact',ensureGuest,(req,res) => {
     res.render('contact',{
         title:'Contact Us'
     });
 });
+
 app.post('/contact',requireLogin, (req,res) => {
     console.log(req.body);
     const newContact = {
@@ -78,34 +85,35 @@ app.post('/contact',requireLogin, (req,res) => {
         }
     });
 });
+
 app.get('/signup',ensureGuest,(req,res) => {
     res.render('signupForm',{
         title:'Register'
     });
 });
 
-app.listen(port,() => {
-    console.log('server is up on port' + port);
-
-});
 app.post('/signup', ensureGuest,(req,res) => {
-    connsole.log(req,body);
+    console.log(req.body);
     let errors =[];
+
     if (req.body.password !== req.body.password2){
         errors.push({text: 'Password does not match'});
     }
+
     if (req.body.password.length < 5){
         errors.push({text: 'Password must be atleast 5 characters'});
     }
+
     if (errors.length > 0){
         res.render('signupForm',{
-            errors:errors,
-            firstname: req.body.firstname,
-            lastname: req.body.lastname,
-            password:req.body.passsword,
-            password2:req.body.password2,
-            email: req.body.email
+        errors:errors,
+        firstname: req.body.firstname,
+        lastname: req.body.lastname,
+        password: req.body.passsword,
+        password2: req.body.password2,
+        email: req.body.email
         })
+
     }else{
         User.findOne({email:req.body.email})
         .then((user) => {
@@ -113,16 +121,17 @@ app.post('/signup', ensureGuest,(req,res) => {
                 let errors = [];
                 errors.push({text: 'Email already exists'});
                 res.render('signupForm',{
-                    errror:errors,
+                    errors:errors,
                     firstname: req.body.firstname,
                     lastname: req.body.lastname,
-                    password:req.body.passsword,
-                    password2:req.body.password2,
+                    password: req.body.passsword,
+                    password2: req.body.password2,
                     email: req.body.email
                 });
+
             }else{
                 //encrypt pass
-                let salt = bcrypt.generate.genSaltSync(10);
+                let salt = bcrypt.genSaltSync(10);
                 let hash = bcrypt.hashSync(req.body.password,salt);                
                 const newUser = {
                     firstname: req.body.firstname,
@@ -130,10 +139,13 @@ app.post('/signup', ensureGuest,(req,res) => {
                     email: req.body.email,
                     password: hash
                 }
+
                 new User(newUser).save((err,user) => {
+
                     if(err){
                       throw err;
                     }
+
                     if(user){
                         let success = [];
                         success.push({text: 'You have successfully created an account'})
@@ -146,25 +158,48 @@ app.post('/signup', ensureGuest,(req,res) => {
         })
     }
 });
+
 app.get('/displayLoginForm' ,ensureGuest,(req,res) => {
     res.render('loginForm', {
         title: 'Login'
     });
 });
+
 app.post('/login',passport.authenticate('local',{
     successRedirect: '/profile', 
     failureRedirect: '/loginErrors'
 }));
+
+app.get('/auth/facebook',passport.authenticate('facebook',{
+    scope: ['email']
+}));
+
+app.get('/aurh/facebook/callback',passport.authenticate('facebook', {
+    successRedirect: '/profile',
+    failureRedirect:'/'
+}))
+
 //display profile
 app.get('/profile',requireLogin,(req,res) =>{
     User.findById({_id:req.user._id})
     .then((user) => {
-        res.render('profile' ,{
-            user:user,
-            title:'Profile'
-        });
+        user.online = true;
+        user.save((err,user) => {
+
+            if (err) {
+                throw err;
+            }
+
+            if(user) {
+                res.render('profile', {
+                    user: user,
+                    title: 'Profile'
+                });
+            }
+        })
     });
 });
+
 app.get('/loginErrors',(req,res) => {
     let errors =[];
     errors.push({text: 'User not found or Password Incorrect'});
@@ -173,14 +208,30 @@ app.get('/loginErrors',(req,res) => {
         title: 'Error'
     });
 });
+//list a car
+app.get('/listCar', requireLogin,(req,res) => {
+    res.render('listCar', {
+        title: 'Listing'
+    });
+});
+
+app.post('/listCar',requireLogin,(req,res) => {
+    console.log(req.body);
+    res.render('listCar2' , {
+        title:'Finish'
+    });
+});
+
 app.get('/logout', (req,res) => {
     User.findById({_id:req.user._id})
     .then((user) => {
          user.online = false;
          user.save((err,user) => {
+
              if (err) {
                  throw err; 
              }
+             
              if (user) {
                  req.logout();
                  res.redirect('/');
