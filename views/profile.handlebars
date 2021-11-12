@@ -1,6 +1,42 @@
-<div class="card" style="width: 18rem;">
+{{!-- <div class="card" style="width: 18rem;"> 
   <img src="{{user.image}}" class="card-img-top" alt="...">
   <div class="card-body">
     <h5 class="card-title">{{user.firstname}} {{user.lastname}}</h5>
   </div>
-</div>
+ </div> --}}
+
+<!DOCTYPE html>
+<html>
+   <head>
+      <title>Profile Card</title>
+      <link rel="stylesheet" type="text/css" href="profile.css">
+   </head>
+   {{>navbar}}
+   <body>
+      <div class="card-container">
+         <div class="upper-container">
+            <div class="image-container">
+               <img src="userlogo.png" />
+            </div>
+         </div>
+         <div class="lower-container">
+            <div>
+              <div class="card-body">
+
+  </div>
+
+                <h5 class="card-title">{{user.firstname}} {{user.lastname}}</h5>
+               {{!-- <h4>Front-end Developer</h4>
+            </div>
+            <div>
+               <p>sodales accumsan ligula. Aenean sed diam tristique,
+                  fermentum mi nec, ornare arch.
+               </p> --}}
+            </div> 
+             <div>
+               {{!-- <a href="#" class="btn">View profile</a> --}}
+            </div>
+         </div>
+      </div>
+   </body>
+</html>

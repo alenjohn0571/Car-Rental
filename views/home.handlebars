@@ -1,18 +1,50 @@
-<div class="container">
-    <h2 class="center">Welcome</h2>
-    <h2 class="center">Car rental service</h2>
-    <h2 class="center">
-        <a href="/auth/facebook" class="btn btn-primary">Login With Facebook</a>  
-    </h2>
-    <h2 class="center">
-         <a href="/displayLoginForm" class="btn btn-info">Login With Email</a>
-    </h2>
-    <h5 class="center">
-            <a href="/signup">Need An Account?</a>  
-    </h5>
-</div>
-<style>
-    body{
-        background-image: url('/image/home.jpg');
-    }
-</style>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="home.css">
+    <title>Car rental</title>
+</head>
+<body>
+    <section class="showcase">
+    <header>
+      <h2 class="logo">Car Rental</h2>
+      <div class="toggle"></div>
+    </header>
+    <video src="cars.mp4" muted loop autoplay></video>
+    <div class="overlay"></div>
+    <div class="text">
+      <h2>Drive it like </h2> 
+      <h3>You own it</h3>
+      <p>Ones Destination is never a place but a new way of seeing things </p>
+      <a href="/about">About Us</a>
+    </div>
+    <ul class="social">
+      <li><a href="#"><img src="https://i.ibb.co/x7P24fL/facebook.png"></a></li>
+      <li><a href="#"><img src="https://i.ibb.co/Wnxq2Nq/twitter.png"></a></li>
+      <li><a href="#"><img src="https://i.ibb.co/ySwtH4B/instagram.png"></a></li>
+    </ul>
+  </section>
+   <div class="menu"> 
+    <ul>
+      <li><a href="/">Home</a></li>
+      <li><a href="/auth/facebook">Login with Facebook</a></li>
+      <li><a href="/displayLoginForm">Login with Email</a></li>
+      <li><a href="/signup">Register</a></li>
+      <li><a href="/contact">Contact</a></li>
+    </ul>
+  </div>
+
+  <script>
+      const menuToggle = document.querySelector('.toggle');
+      const showcase = document.querySelector('.showcase');
+
+      menuToggle.addEventListener('click', () => {
+         menuToggle.classList.toggle('active');
+         showcase.classList.toggle('active');
+})
+  </script>
+</body>
+</html>
